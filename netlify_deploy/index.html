@@ -610,7 +610,23 @@ window.switchModule=function(mod,el,fromDrawer){
 };
 
 // ── Form ───────────────────────────────────────────────
-window.openForm=function(subMod){
+
+// ── Edit Record ────────────────────────────────────────
+window._editId = null; // null = new record, string = editing
+
+window.openEdit = function(id){
+  // Find the record in all modules
+  var rec = null;
+  var mod = currentModule;
+  if(db[mod]){
+    rec = db[mod].find(function(r){ return r.id===id; });
+  }
+  if(!rec){ alert('找不到記錄'); return; }
+  window._editId = id;
+  openForm(currentSubTab, rec); // pass rec to prefill
+};
+
+window.openForm=function(subMod, _prefill){
   const fp=document.getElementById('form-panel');
   let title='', enTitle='', fields='';
   const mod=currentModule;
@@ -807,14 +823,52 @@ window.openForm=function(subMod){
     }
   }
 
-  fp.innerHTML=`<h3>📝 ${title}<span style='display:block;font-size:11px;font-weight:400;color:var(--text3);margin-top:1px'>${enTitle||''}</span></h3>${fields}<div class="form-actions"><button class="btn btn-ghost" onclick="closeForm()">取消</button><button class="btn btn-primary" onclick="submitForm()">✓ 儲存</button></div>`;
+  // Show edit mode indicator in title if editing
+  var isEdit = !!window._editId;
+  var editLabel = isEdit ? ' <span style="font-size:10px;background:#e8f4fd;color:#2980b9;padding:2px 8px;border-radius:4px;font-weight:500">✏️ 編輯模式</span>' : '';
+  fp.innerHTML=`<h3>📝 ${isEdit?'編輯':title}${editLabel}<span style='display:block;font-size:11px;font-weight:400;color:var(--text3);margin-top:1px'>${enTitle||''}</span></h3>${fields}<div class="form-actions"><button class="btn btn-ghost" onclick="closeForm()">取消</button><button class="btn btn-primary" onclick="submitForm()">${isEdit?'✓ 更新':'✓ 儲存'}</button></div>`;
   fp.classList.add('open');
   fp.scrollIntoView({behavior:'smooth',block:'nearest'});
+  // Prefill fields if editing
+  if(_prefill){
+    var pf=_prefill;
+    var sv=function(id,val){var el=document.getElementById(id);if(el&&val!=null)el.value=val;};
+    var sc=function(id,val){var el=document.getElementById(id);if(el)el.checked=!!val;};
+    // Common fields across modules
+    sv('f-name',pf.name);sv('f-phone',pf.phone);sv('f-goods',pf.goods);sv('f-notes',pf.notes);
+    sv('f-date',pf.date);sv('f-eta',pf.eta);sv('f-status',pf.status);
+    // presale
+    sv('f-buydate',pf.buydate);sc('f-sms',pf.sms);sc('f-pickup',pf.pickup);
+    // repair
+    sv('f-fault',pf.fault);sv('f-indate',pf.indate);sv('f-outdate',pf.outdate);
+    // returns
+    sv('f-type',pf.type);sv('f-reason',pf.reason);sv('f-result',pf.result);
+    // fixtips
+    sv('f-sku',pf.sku);sv('f-pname',pf.pname);sv('f-brand',pf.brand);
+    sv('f-cat',pf.cat);sv('f-solution',pf.solution);sv('f-diff',pf.diff);
+    // complaint
+    sv('f-level',pf.level);sv('f-complaint',pf.complaint);sv('f-handle',pf.handle);
+    // restock
+    sv('f-week',pf.week);sv('f-shortage',pf.shortage);sv('f-supplier',pf.supplier);
+    sv('f-ordered',pf.ordered);
+    // promo
+    sv('f-orig',pf.orig);sv('f-sale',pf.sale);sv('f-stock',pf.stock);
+    sv('f-start',pf.start);sv('f-end',pf.end);
+    // sales
+    sv('f-title',pf.title);sv('f-cat',pf.cat);sv('f-body',pf.body);
+    // supplier
+    sv('f-supname',pf.supname);sv('f-contact',pf.contact);sv('f-email',pf.email);
+    sv('f-addr',pf.addr);sv('f-cats',pf.cats);sv('f-qty',pf.qty);
+    sv('f-cost',pf.cost);sv('f-price',pf.price);sv('f-items',pf.items);
+    sv('f-amount',pf.amount);sv('f-desc',pf.desc);
+    sv('f-sms-notify',pf.smsNotify);
+  }
 };
 
 window.closeForm=function(){
   const fp=document.getElementById('form-panel');
   fp.classList.remove('open'); fp.innerHTML='';
+  window._editId = null; // always reset edit state on close
 };
 
 window.submitForm=async function(){
@@ -863,7 +917,16 @@ window.submitForm=async function(){
     }
   }
   closeForm();
-  await fsAdd(mod, rec);
+  if(window._editId){
+    // Edit mode: update existing record
+    var editId = window._editId;
+    window._editId = null;
+    delete rec.id; // don't overwrite id
+    await fsUpdate(mod, editId, rec);
+  } else {
+    // New record
+    await fsAdd(mod, rec);
+  }
 };
 
 window.renderCurrent=function(){
@@ -891,7 +954,7 @@ function renderPresale(){
     <div class="m-card">
       <div class="m-card-header">
         <div><div class="m-card-title">${esc(r.name)}</div><div class="m-card-sub">${esc(r.phone)}</div></div>
-        ${delBtn(r.id)}
+        ${editBtn(r.id)}${delBtn(r.id)}
       </div>
       <div class="m-card-body">${esc(r.goods)}</div>
       <div class="m-card-meta">
@@ -920,7 +983,7 @@ function renderRepair(){
         <div><div class="m-card-title">${esc(r.name)}</div><div class="m-card-sub">${esc(r.phone)}</div></div>
         <div style="display:flex;gap:6px;align-items:center">
           <button class="status-btn" onclick="toggleField('repair','${r.id}','status','${next}')"><span class="badge ${s.cls}">${s.label}</span></button>
-          ${delBtn(r.id)}
+          ${editBtn(r.id)}${delBtn(r.id)}
         </div>
       </div>
       <div class="m-card-body"><strong>${esc(r.goods)}</strong></div>
@@ -941,7 +1004,7 @@ function renderReturns(){
     <div class="m-card">
       <div class="m-card-header">
         <div><div class="m-card-title">${esc(r.name)}</div><div class="m-card-sub">${fmtDate(r.date)}${r.phone?' · '+esc(r.phone):''}</div></div>
-        <div style="display:flex;gap:6px;align-items:center"><span class="badge ${r.type==='return'?'b-urgent':'b-info'}">${r.type==='return'?'退貨 Return':'換貨 Exchange'}</span>${delBtn(r.id)}</div>
+        <div style="display:flex;gap:6px;align-items:center"><span class="badge ${r.type==='return'?'b-urgent':'b-info'}">${r.type==='return'?'退貨 Return':'換貨 Exchange'}</span>${editBtn(r.id)}${delBtn(r.id)}</div>
       </div>
       <div class="m-card-body"><strong>${esc(r.goods)}</strong></div>
       <div style="font-size:13px;color:var(--text2);margin-top:4px">${esc(r.reason)}</div>
@@ -1027,7 +1090,7 @@ function renderFixtips(){
       h.push('</div>');
       h.push('<div style="display:flex;gap:6px;align-items:center;flex-shrink:0;margin-left:8px">');
       if(r.date) h.push('<span style="font-size:11px;color:#bbb;white-space:nowrap">'+r.date+'</span>');
-      h.push(delBtn(r.id));
+      h.push(editBtn(r.id)+delBtn(r.id));
       h.push('</div>');
       h.push('</div>');
       h.push('<div style="background:#fff5f5;border-left:3px solid #e17055;padding:8px 12px;border-radius:0 6px 6px 0;margin-bottom:8px">');
@@ -1106,7 +1169,7 @@ function renderComplaint(){
       h.push('<div class="m-card">');
       h.push('<div class="m-card-header">');
       h.push('<div><div class="m-card-title">'+( esc(r.name)||'匿名客人')+'</div><div class="m-card-sub">'+fmtDate(r.date)+(r.phone?' · '+esc(r.phone):'')+'</div></div>');
-      h.push('<div style="display:flex;gap:6px;align-items:center"><span class="badge '+lv.cls+'">'+lv.label+'</span>'+delBtn(r.id)+'</div>');
+      h.push('<div style="display:flex;gap:6px;align-items:center"><span class="badge '+lv.cls+'">'+lv.label+'</span>'+editBtn(r.id)+delBtn(r.id)+'</div>');
       h.push('</div>');
       if(r.goods) h.push('<div style="font-size:12px;color:var(--text3);margin-bottom:6px">'+esc(r.goods)+'</div>');
       h.push('<div class="m-card-body">'+esc(r.complaint)+'</div>');
@@ -1168,7 +1231,7 @@ function renderArrival(){
         </div>
         <div style="display:flex;gap:5px;align-items:center">
           <button class="status-btn" onclick="cycleArrivalStatus('${r.id}')"><span class="badge ${st.cls}">${st.label}</span></button>
-          ${delBtn(r.id)}
+          ${editBtn(r.id)}${delBtn(r.id)}
         </div>
       </div>
       <div class="m-card-body" style="font-weight:500">${esc(r.goods)}</div>
@@ -1197,7 +1260,7 @@ function renderRestock(){
     return`<div class="repl-week">
       <div class="repl-header">
         <div><div class="repl-title">${esc(r.week)}</div><div class="repl-date">${fmtDate(r.date)}</div></div>
-        <div style="display:flex;gap:6px;align-items:center"><span class="badge b-urgent">${items.length} 項缺貨</span>${delBtn(r.id)}</div>
+        <div style="display:flex;gap:6px;align-items:center"><span class="badge b-urgent">${items.length} 項缺貨</span>${editBtn(r.id)}${delBtn(r.id)}</div>
       </div>
       <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">缺貨商品 Out-of-Stock Items</div>
       <div class="repl-items">${items.map(i=>`<span class="repl-tag">${esc(i)}</span>`).join('')}</div>
@@ -1340,7 +1403,7 @@ function renderPromo(){
       h.push('<div class="sale-card">');
       h.push('<div class="sale-header">');
       h.push('<div><div class="sale-product">'+esc(r.goods)+'</div><div class="sale-period">'+fmtDate(r.start)+' → '+(fmtDate(r.end)||'進行中')+'</div></div>');
-      h.push('<div style="display:flex;gap:5px">'+dBadge+delBtn(r.id)+'</div>');
+      h.push('<div style="display:flex;gap:5px">'+dBadge+editBtn(r.id)+delBtn(r.id)+'</div>');
       h.push('</div><div class="sale-meta">');
       if(r.orig) h.push('<span class="badge b-no">原價 $'+r.orig+'</span>');
       if(r.sale) h.push('<span class="badge b-yes">特價 $'+r.sale+'</span>');
@@ -1376,7 +1439,7 @@ function renderSales(){
   el.innerHTML=rows.map(r=>`<div class="sale-card">
     <div class="sale-header">
       <div><div class="sale-product">${esc(r.title)}</div><div class="sale-period">${fmtDate(r.date)}${r.cat?` · ${esc(r.cat)}`:''}</div></div>
-      ${delBtn(r.id)}
+      ${editBtn(r.id)}${delBtn(r.id)}
     </div>
     <div class="sale-body">${esc(r.body).replace(/\n/g,'<br>')}</div>
     ${r.result?`<div style="margin-top:10px;padding:10px;background:var(--green-l);border-radius:8px;font-size:13px;color:var(--green)"><strong>成效評估 Outcome：</strong>${esc(r.result)}</div>`:''}
@@ -1404,7 +1467,7 @@ function renderSupplier(){
     else content=rows.map(r=>`<div class="sup-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
         <div><div class="sup-name">${esc(r.supname)}</div>${r.contact?`<div style="font-size:12px;color:var(--text2);margin-bottom:2px">👤 ${esc(r.contact)}</div>`:''}</div>
-        ${delBtn(r.id)}
+        ${editBtn(r.id)}${delBtn(r.id)}
       </div>
       <div class="sup-contact">${r.phone?`📞 ${esc(r.phone)}`:''} ${r.email?`&nbsp;✉️ ${esc(r.email)}`:''}</div>
       ${r.addr?`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">📍 ${esc(r.addr)}</div>`:''}
@@ -1419,7 +1482,7 @@ function renderSupplier(){
       return`<div class="m-card">
         <div class="m-card-header">
           <div><div class="m-card-title">${esc(r.goods)}</div><div class="m-card-sub">${r.supname?esc(r.supname)+' · ':''} ${fmtDate(r.date)}</div></div>
-          <div style="display:flex;gap:5px;align-items:center"><span class="badge ${st.cls}">${st.label}</span>${delBtn(r.id)}</div>
+          <div style="display:flex;gap:5px;align-items:center"><span class="badge ${st.cls}">${st.label}</span>${editBtn(r.id)}${delBtn(r.id)}</div>
         </div>
         <div class="m-card-meta">
           ${r.qty?`<span class="badge b-info">庫存 ${r.qty} 件</span>`:''}
@@ -1440,7 +1503,7 @@ function renderSupplier(){
           <div><div class="m-card-title">${esc(r.supname)}</div><div class="m-card-sub">訂單日期 Order: ${fmtDate(r.date)}</div></div>
           <div style="display:flex;gap:5px;align-items:center">
             <button class="status-btn" onclick="cycleOrderStatus('${r.id}')"><span class="badge ${st.cls}">${st.label}</span></button>
-            ${delBtn(r.id)}
+            ${editBtn(r.id)}${delBtn(r.id)}
           </div>
         </div>
         <div class="repl-items">${items.map(i=>`<span class="repl-tag">${esc(i)}</span>`).join('')}</div>
@@ -1463,7 +1526,7 @@ function renderSupplier(){
           <div><div class="m-card-title">${esc(r.goods)}</div><div class="m-card-sub">${esc(r.supname)} · ${fmtDate(r.date)}</div></div>
           <div style="display:flex;gap:5px;align-items:center">
             <button class="status-btn" onclick="toggleField('supplier','${r.id}','status','${nextR}')"><span class="badge ${st.cls}">${st.label}</span></button>
-            ${delBtn(r.id)}
+            ${editBtn(r.id)}${delBtn(r.id)}
           </div>
         </div>
         <div class="m-card-meta">
@@ -1513,6 +1576,11 @@ window.markSmsSent=async function(id){
 function delBtn(id){
   return`<button style="background:none;border:none;cursor:pointer;color:var(--text3);padding:5px;border-radius:6px;flex-shrink:0" onclick="startDel('${id}')" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+  </button>`;
+}
+function editBtn(id){
+  return`<button style="background:none;border:none;cursor:pointer;color:var(--text3);padding:5px;border-radius:6px;flex-shrink:0" onclick="openEdit('${id}')" onmouseover="this.style.color='#2980b9';this.style.background='#eaf4fd'" onmouseout="this.style.color='var(--text3)';this.style.background='none'" title="編輯">
+    <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
   </button>`;
 }
 function delConfirmInline(id){
@@ -1935,7 +2003,7 @@ function renderPromo(){
       h.push('<div class="sale-card">');
       h.push('<div class="sale-header">');
       h.push('<div><div class="sale-product">'+esc(r.goods)+'</div><div class="sale-period">'+fmtDate(r.start)+' → '+(fmtDate(r.end)||'進行中')+'</div></div>');
-      h.push('<div style="display:flex;gap:5px">'+dBadge+delBtn(r.id)+'</div>');
+      h.push('<div style="display:flex;gap:5px">'+dBadge+editBtn(r.id)+delBtn(r.id)+'</div>');
       h.push('</div><div class="sale-meta">');
       if(r.orig) h.push('<span class="badge b-no">原價 $'+r.orig+'</span>');
       if(r.sale) h.push('<span class="badge b-yes">特價 $'+r.sale+'</span>');
@@ -2133,7 +2201,16 @@ function _wireLookup(el, hadFocus){
   var lkEl=document.getElementById('lk-search');
   if(lkEl){
     lkEl.value=_LK.q;
+    var _composing=false;
+    lkEl.addEventListener('compositionstart',function(){_composing=true;});
+    lkEl.addEventListener('compositionend',function(){
+      _composing=false;
+      _LK.q=this.value; _LK.page=0;
+      clearTimeout(_LK._t);
+      _LK._t=setTimeout(renderLookup, 80);
+    });
     lkEl.addEventListener('input',function(){
+      if(_composing) return; // 中文輸入法組字期間不觸發
       _LK.q=this.value; _LK.page=0;
       if(!window.PDATA_LOADED && this.value.trim()){
         renderLookup();
