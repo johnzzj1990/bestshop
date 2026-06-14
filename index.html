@@ -132,6 +132,7 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 /* ── Form panel ── */
 .form-panel{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:18px;margin-bottom:16px;display:none;animation:sdown .18s ease;box-shadow:var(--shadow)}
 .form-panel.open{display:block}
+.form-panel.edit-mode{border-color:#2980b9;border-left:4px solid #2980b9;background:linear-gradient(to right,#f0f7ff 0%,var(--surface) 60px)}
 @keyframes sdown{from{opacity:0;transform:translateY(-8px)}to{opacity:1;transform:translateY(0)}}
 .form-panel-title{font-size:14px;font-weight:700;margin-bottom:16px;color:var(--text);display:flex;align-items:center;gap:8px}
 .form-panel-title-sub{display:block;font-size:11px;font-weight:400;color:var(--text3);margin-top:2px}
@@ -167,13 +168,13 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
 
 /* ── Cards ── */
 .card-list{display:flex;flex-direction:column;gap:10px}
-.m-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;transition:border-color .12s,box-shadow .12s;box-shadow:var(--shadow-sm)}
-.m-card:hover{border-color:var(--border);box-shadow:var(--shadow)}
+.m-card{background:var(--surface);border:1px solid var(--border);border-radius:var(--radius-lg);padding:14px 16px;transition:border-color .15s,box-shadow .15s;box-shadow:var(--shadow-sm);position:relative}
+.m-card:hover{border-color:var(--accent);box-shadow:0 2px 12px rgba(192,58,8,.08)}
 .m-card-header{display:flex;align-items:flex-start;justify-content:space-between;gap:8px;margin-bottom:8px}
 .m-card-title{font-size:14px;font-weight:700;color:var(--text)}
 .m-card-sub{font-size:12px;color:var(--text3);margin-top:2px;font-family:'DM Mono',monospace}
 .m-card-body{font-size:13px;color:var(--text2);line-height:1.6}
-.m-card-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
+.m-card:hover .m-card-meta{display:flex;flex-wrap:wrap;gap:5px;margin-top:10px}
 .m-card-row{display:flex;align-items:center;justify-content:space-between;margin-top:6px;font-size:12px;padding-top:6px;border-top:1px solid var(--border-light)}
 .m-card-label{color:var(--text3)}
 .m-card-value{color:var(--text2);font-weight:500;font-family:'DM Mono',monospace}
@@ -302,6 +303,89 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   .fgrow-2,.fgrow-3{grid-template-columns:1fr}
   .search{display:none}
 }
+
+/* ── Edit/Delete action buttons ── */
+.m-card:hover @media(max-width:600px){}
+
+/* ── Form improvements ── */
+.form-panel.edit-mode .fg label{color:#1d4ed8}
+.form-panel.edit-mode input:focus,
+.form-panel.edit-mode select:focus,
+.form-panel.edit-mode textarea:focus{border-color:#1d4ed8;box-shadow:0 0 0 2px rgba(29,78,216,.12)}
+
+/* ── Better empty state ── */
+.empty-state{display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:56px 20px;text-align:center;color:var(--text3)}
+.empty-state-icon{font-size:48px;margin-bottom:14px;opacity:.6}
+.empty-state-title{font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px}
+.empty-state-sub{font-size:13px;color:var(--text3)}
+
+/* ── Badge improvements ── */
+.badge{display:inline-flex;align-items:center;gap:3px;padding:2px 8px;border-radius:20px;
+  font-size:11px;font-weight:600;white-space:nowrap}
+
+/* ── Smooth card list ── */
+.card-list{display:flex;flex-direction:column;gap:10px}
+
+/* ── Form actions bar ── */
+.form-actions{display:flex;gap:8px;justify-content:flex-end;padding-top:14px;
+  border-top:1px solid var(--border-light);margin-top:14px}
+
+/* ── Input focus glow ── */
+input:focus,select:focus,textarea:focus{
+  outline:none;border-color:var(--accent)!important;
+  box-shadow:0 0 0 3px rgba(192,58,8,.1)}
+
+/* ── Scrollbar styling ── */
+::-webkit-scrollbar{width:5px;height:5px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--border);border-radius:10px}
+::-webkit-scrollbar-thumb:hover{background:var(--text3)}
+
+/* ── Toast notification ── */
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:#1e293b;color:#fff;padding:10px 20px;border-radius:24px;font-size:13px;
+  font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;
+  white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.25)}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ── Search highlight in lookup ── */
+mark{background:#ffe082;border-radius:2px;padding:0 1px;color:inherit}
+
+.m-card-actions{display:flex;gap:2px;align-items:center;flex-shrink:0}
+
+/* ── Receipt overlay ── */
+#receipt-overlay{display:none;position:fixed;inset:0;z-index:99999;background:#e8e8e8;overflow-y:auto}
+#receipt-overlay.open{display:block}
+.rct-bar{position:sticky;top:0;background:#c03a08;color:#fff;padding:10px 16px;display:flex;align-items:center;gap:10px}
+.rct-wrap{max-width:680px;margin:16px auto;background:#fff;padding:26px 28px;border-radius:8px;box-shadow:0 2px 16px rgba(0,0,0,.12);font-family:Arial,sans-serif;font-size:13px;color:#111}
+.rct-header{display:flex;justify-content:space-between;align-items:flex-start;border-bottom:2.5px solid #111;padding-bottom:11px;margin-bottom:14px}
+.rct-co{font-size:18px;font-weight:800}
+.rct-cosub{font-size:11px;color:#555;margin-top:3px}
+.rct-title{text-align:right}
+.rct-title h2{font-size:15px;font-weight:700;margin:0}
+.rct-no{font-size:11px;color:#555;font-family:monospace;margin-top:2px}
+.rct-copy-lbl{font-size:11px;color:#555;margin-top:1px}
+.rct-grid{display:grid;grid-template-columns:1fr 1fr;gap:7px 22px;margin-bottom:12px}
+.rct-full{grid-column:1/-1}
+.rct-lbl{font-size:10px;color:#888;margin-bottom:2px}
+.rct-val{font-weight:600}
+.rct-fault{background:#fafafa;border-left:3px solid #c03a08;padding:9px 13px;border-radius:0 4px 4px 0;margin-bottom:12px;white-space:pre-wrap;line-height:1.6}
+.rct-sig{padding-top:12px;border-top:1px solid #e0e0e0;margin-top:4px}
+.rct-sig-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:0 24px;margin-top:8px}
+.rct-sig-line{height:46px;border-bottom:1.5px solid #333}
+.rct-sig-lbl{font-size:10px;color:#666;text-align:center;margin-top:4px}
+.rct-terms{margin-top:14px;padding:9px 13px;background:#f8f8f8;border-radius:4px;font-size:10px;color:#666;line-height:1.8}
+.rct-cut{margin:20px 0;border-top:1.5px dashed #ccc;position:relative;text-align:center}
+.rct-cut-lbl{position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:#fff;padding:0 10px;font-size:10px;color:#bbb}
+.rct-foot{margin-top:12px;text-align:center;font-size:10px;color:#aaa;border-top:1px solid #eee;padding-top:8px}
+@media print{
+  body>*:not(#receipt-overlay){display:none!important}
+  #receipt-overlay{position:static!important;background:#fff!important}
+  .rct-bar{display:none!important}
+  .rct-wrap{box-shadow:none!important;margin:0!important;padding:0!important;border-radius:0!important;max-width:100%!important}
+  @page{size:A4;margin:15mm}
+}
 </style>
 </head>
 <body>
@@ -310,7 +394,11 @@ body{font-family:'Noto Sans TC',sans-serif;background:var(--bg);color:var(--text
   <img style="width:64px;height:64px;object-fit:contain;border-radius:10px;background:white;padding:4px;margin-bottom:8px" src="data:image/jpeg;base64,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" alt="大多百">
   <div style="font-size:15px;font-weight:700;color:var(--text)">大多百電器部管理系統</div>
   <div style="font-size:11px;color:var(--text3);margin-bottom:10px">The Best Shop — Electronics Dept. Manager</div>
-  <div style="display:flex;align-items:center;gap:8px"><div class="spinner"></div><span style="font-size:13px;color:var(--text2)">連接雲端資料庫… Connecting…</span></div>
+  <div style="display:flex;align-items:center;gap:8px"><div class="spinner"></div><span style="font-size:13px;color:var(--text2)">連接雲端資料庫… Connecting…</span>
+  <button onclick="hideLoader();syncState('error','離線模式');renderCurrent();" style="margin-top:16px;padding:8px 20px;background:var(--accent);color:white;border:none;border-radius:8px;font-size:13px;cursor:pointer;font-family:inherit">
+    跳過，直接進入 →
+  </button>
+  </div>
 </div>
 <div id="sync-badge" class="ok"><div class="sync-dot"></div><span id="sync-text">已同步</span></div>
 
@@ -502,6 +590,24 @@ function syncState(state,text){
   document.getElementById('sync-text').textContent=text;
 }
 
+function showToast(msg, type){
+  var t=document.getElementById('app-toast');
+  if(!t){
+    t=document.createElement('div');
+    t.id='app-toast';
+    t.style.cssText='position:fixed;bottom:76px;left:50%;transform:translateX(-50%) translateY(12px);padding:10px 20px;border-radius:24px;font-size:13px;font-weight:500;opacity:0;transition:all .25s;pointer-events:none;z-index:9999;white-space:nowrap;box-shadow:0 4px 20px rgba(0,0,0,.2);max-width:90vw;text-align:center';
+    document.body.appendChild(t);
+  }
+  var bg = type==='ok'?'#16a34a':type==='err'?'#dc2626':'#1e293b';
+  t.style.background=bg; t.style.color='#fff';
+  t.textContent=msg;
+  t.style.opacity='1'; t.style.transform='translateX(-50%) translateY(0)';
+  clearTimeout(t._t);
+  t._t=setTimeout(function(){
+    t.style.opacity='0'; t.style.transform='translateX(-50%) translateY(12px)';
+  }, 2800);
+}
+
 // ── Firebase ───────────────────────────────────────────
 function hideLoader(){
   document.getElementById('loading-overlay').classList.add('hidden');
@@ -514,7 +620,7 @@ function subscribeAll(){
     hideLoader();
     syncState('error','離線模式 Offline');
     renderCurrent();
-  }, 5000);
+  }, 3000);
 
   let resolved = false;
   function onFirstLoad(){
@@ -548,7 +654,7 @@ async function fsAdd(mod, rec){
     const {id,...data}=rec; data._ts=serverTimestamp();
     await addDoc(collection(fdb,mod),data);
     syncState('ok','已同步 Synced');
-  }catch(e){ syncState('error','儲存失敗 Failed'); alert('儲存失敗：'+e.message); }
+  }catch(e){ syncState('error','儲存失敗 Failed'); showToast('儲存失敗：'+e.message,'err'); }
 }
 async function fsUpdate(mod,id,fields){
   syncState('syncing','更新中… Updating…');
@@ -621,7 +727,7 @@ window.openEdit = function(id){
   if(db[mod]){
     rec = db[mod].find(function(r){ return r.id===id; });
   }
-  if(!rec){ alert('找不到記錄'); return; }
+  if(!rec){ showToast('找不到記錄','err'); return; }
   window._editId = id;
   openForm(currentSubTab, rec); // pass rec to prefill
 };
@@ -825,107 +931,149 @@ window.openForm=function(subMod, _prefill){
 
   // Show edit mode indicator in title if editing
   var isEdit = !!window._editId;
-  var editLabel = isEdit ? ' <span style="font-size:10px;background:#e8f4fd;color:#2980b9;padding:2px 8px;border-radius:4px;font-weight:500">✏️ 編輯模式</span>' : '';
-  fp.innerHTML=`<h3>📝 ${isEdit?'編輯':title}${editLabel}<span style='display:block;font-size:11px;font-weight:400;color:var(--text3);margin-top:1px'>${enTitle||''}</span></h3>${fields}<div class="form-actions"><button class="btn btn-ghost" onclick="closeForm()">取消</button><button class="btn btn-primary" onclick="submitForm()">${isEdit?'✓ 更新':'✓ 儲存'}</button></div>`;
+  var editLabel = isEdit ? '<span style="font-size:10px;background:#dbeafe;color:#1d4ed8;padding:2px 9px;border-radius:20px;font-weight:600;margin-left:8px;vertical-align:middle">✏️ 編輯模式</span>' : '';
+  fp.innerHTML=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px">
+    <div>
+      <h3 style="margin:0;font-size:15px;font-weight:700;color:var(--text)">${isEdit?title:title}${editLabel}</h3>
+      <div style="font-size:11px;color:var(--text3);margin-top:2px">${enTitle||''}</div>
+    </div>
+    <button onclick="closeForm()" style="background:none;border:none;cursor:pointer;color:var(--text3);padding:6px;border-radius:8px;font-size:18px;line-height:1" onmouseover="this.style.background='var(--surface2)'" onmouseout="this.style.background='none'">✕</button>
+  </div>${fields}<div class="form-actions"><button class="btn btn-ghost" onclick="closeForm()">取消</button><button class="btn btn-primary" onclick="submitForm()" style="${isEdit?'background:#1d4ed8;border-color:#1d4ed8':''}">${isEdit?'✓ 更新記錄':'✓ 儲存'}</button></div>`;
   fp.classList.add('open');
+  if(isEdit) fp.classList.add('edit-mode'); else fp.classList.remove('edit-mode');
   fp.scrollIntoView({behavior:'smooth',block:'nearest'});
   // Prefill fields if editing
-  if(_prefill){
-    var pf=_prefill;
-    var sv=function(id,val){var el=document.getElementById(id);if(el&&val!=null)el.value=val;};
-    var sc=function(id,val){var el=document.getElementById(id);if(el)el.checked=!!val;};
-    // Common fields across modules
-    sv('f-name',pf.name);sv('f-phone',pf.phone);sv('f-goods',pf.goods);sv('f-notes',pf.notes);
-    sv('f-date',pf.date);sv('f-eta',pf.eta);sv('f-status',pf.status);
-    // presale
-    sv('f-buydate',pf.buydate);sc('f-sms',pf.sms);sc('f-pickup',pf.pickup);
-    // repair
-    sv('f-fault',pf.fault);sv('f-indate',pf.indate);sv('f-outdate',pf.outdate);
-    // returns
-    sv('f-type',pf.type);sv('f-reason',pf.reason);sv('f-result',pf.result);
-    // fixtips
-    sv('f-sku',pf.sku);sv('f-pname',pf.pname);sv('f-brand',pf.brand);
-    sv('f-cat',pf.cat);sv('f-solution',pf.solution);sv('f-diff',pf.diff);
-    // complaint
-    sv('f-level',pf.level);sv('f-complaint',pf.complaint);sv('f-handle',pf.handle);
-    // restock
-    sv('f-week',pf.week);sv('f-shortage',pf.shortage);sv('f-supplier',pf.supplier);
-    sv('f-ordered',pf.ordered);
-    // promo
-    sv('f-orig',pf.orig);sv('f-sale',pf.sale);sv('f-stock',pf.stock);
-    sv('f-start',pf.start);sv('f-end',pf.end);
-    // sales
-    sv('f-title',pf.title);sv('f-cat',pf.cat);sv('f-body',pf.body);
-    // supplier
-    sv('f-supname',pf.supname);sv('f-contact',pf.contact);sv('f-email',pf.email);
-    sv('f-addr',pf.addr);sv('f-cats',pf.cats);sv('f-qty',pf.qty);
-    sv('f-cost',pf.cost);sv('f-price',pf.price);sv('f-items',pf.items);
-    sv('f-amount',pf.amount);sv('f-desc',pf.desc);
-    sv('f-sms-notify',pf.smsNotify);
-  }
+  if(_prefill){ _applyPrefill(fp, _prefill); }
 };
+
+// Separate function so it can retry if needed
+function _applyPrefill(fp, pf){
+  // sv: safely set value, only if field exists and val is a real string/number
+  function sv(id, val){
+    var el=fp.querySelector('#'+id);
+    if(!el) return;
+    var strVal = (val===null||val===undefined||val===false) ? '' : String(val);
+    el.value = strVal;
+  }
+  function sc(id, val){
+    var el=fp.querySelector('#'+id);
+    if(el) el.checked = !!val;
+  }
+  // Set every known field — empty string clears today() defaults
+  sv('f-name',      pf.name);
+  sv('f-phone',     pf.phone);
+  sv('f-goods',     pf.goods);
+  sv('f-notes',     pf.notes);
+  sv('f-date',      pf.date);
+  sv('f-eta',       pf.eta);
+  sv('f-status',    pf.status);
+  sv('f-buydate',   pf.buydate);
+  sv('f-fault',     pf.fault);
+  sv('f-indate',    pf.indate);
+  sv('f-outdate',   pf.outdate);
+  sv('f-type',      pf.type);
+  sv('f-reason',    pf.reason);
+  sv('f-result',    pf.result);
+  sv('f-sku',       pf.sku);
+  sv('f-pname',     pf.pname);
+  sv('f-brand',     pf.brand);
+  sv('f-cat',       pf.cat);
+  sv('f-solution',  pf.solution);
+  sv('f-diff',      pf.diff);
+  sv('f-level',     pf.level);
+  sv('f-complaint', pf.complaint);
+  sv('f-handle',    pf.handle);
+  sv('f-week',      pf.week);
+  sv('f-shortage',  pf.shortage);
+  sv('f-supplier',  pf.supplier);
+  sv('f-ordered',   pf.ordered);
+  sv('f-orig',      pf.orig);
+  sv('f-sale',      pf.sale);
+  sv('f-stock',     pf.stock);
+  sv('f-start',     pf.start);
+  sv('f-end',       pf.end);
+  sv('f-title',     pf.title);
+  sv('f-body',      pf.body);
+  sv('f-supname',   pf.supname);
+  sv('f-contact',   pf.contact);
+  sv('f-email',     pf.email);
+  sv('f-addr',      pf.addr);
+  sv('f-cats',      pf.cats);
+  sv('f-qty',       pf.qty);
+  sv('f-cost',      pf.cost);
+  sv('f-price',     pf.price);
+  sv('f-items',     pf.items);
+  sv('f-amount',    pf.amount);
+  sv('f-desc',      pf.desc);
+  sv('f-sms-notify',pf.smsNotify);
+  sc('f-sms',       pf.sms);
+  sc('f-pickup',    pf.pickup);
+  // Focus first editable field
+  var first = fp.querySelector('input:not([type=checkbox]),textarea,select');
+  if(first){ first.focus(); }
+}
 
 window.closeForm=function(){
   const fp=document.getElementById('form-panel');
-  fp.classList.remove('open'); fp.innerHTML='';
-  window._editId = null; // always reset edit state on close
+  fp.classList.remove('open','edit-mode'); fp.innerHTML='';
+  window._editId = null;
 };
 
 window.submitForm=async function(){
   const mod=currentModule; const st=currentSubTab; let rec={};
   if(mod==='presale'){
     rec={name:v('f-name'),phone:v('f-phone'),goods:v('f-goods'),buydate:v('f-buydate'),eta:v('f-eta'),notes:v('f-notes'),sms:vc('f-sms'),pickup:vc('f-pickup')};
-    if(!rec.name||!rec.phone||!rec.goods){alert('請填寫姓名、電話、貨物名稱');return}
+    if(!rec.name||!rec.phone||!rec.goods){showToast('請填寫姓名、電話、貨物名稱','err');return}
   } else if(mod==='arrival'){
     rec={name:v('f-name'),phone:v('f-phone'),goods:v('f-goods'),eta:v('f-eta'),date:v('f-date'),notes:v('f-notes'),smsNotify:vc('f-sms-notify'),status:'waiting',smsSent:false};
-    if(!rec.name||!rec.phone||!rec.goods){alert('請填寫姓名、電話、貨物名稱');return}
+    if(!rec.name||!rec.phone||!rec.goods){showToast('請填寫姓名、電話、貨物名稱','err');return}
   } else if(mod==='repair'){
     rec={name:v('f-name'),phone:v('f-phone'),goods:v('f-goods'),fault:v('f-fault'),buydate:v('f-buydate'),indate:v('f-indate'),outdate:v('f-outdate'),status:v('f-status')};
-    if(!rec.name||!rec.phone||!rec.goods||!rec.fault){alert('請填寫必填欄位');return}
+    if(!rec.name||!rec.phone||!rec.goods||!rec.fault){showToast('請填寫必填欄位','err');return}
   } else if(mod==='returns'){
     rec={name:v('f-name'),phone:v('f-phone'),goods:v('f-goods'),type:v('f-type'),date:v('f-date'),reason:v('f-reason'),result:v('f-result')};
-    if(!rec.name||!rec.goods||!rec.reason){alert('請填寫必填欄位');return}
+    if(!rec.name||!rec.goods||!rec.reason){showToast('請填寫必填欄位','err');return}
   } else if(mod==='fixtips'){
     rec={sku:v('f-sku'),pname:v('f-pname'),brand:v('f-brand'),cat:v('f-cat'),fault:v('f-fault'),solution:v('f-solution'),diff:v('f-diff'),notes:v('f-notes'),date:today()};
     if(!rec.sku||!rec.pname||!rec.fault||!rec.solution){showToast('⚠️ 請填寫貨號、商品名稱、故障原因及解決方法');return;}
   } else if(mod==='complaint'){
     rec={name:v('f-name'),phone:v('f-phone'),date:v('f-date'),level:v('f-level'),goods:v('f-goods'),complaint:v('f-complaint'),handle:v('f-handle')};
-    if(!rec.complaint){alert('請填寫投訴內容');return}
+    if(!rec.complaint){showToast('請填寫投訴內容','err');return}
   } else if(mod==='restock'){
     rec={week:v('f-week'),date:v('f-date'),shortage:v('f-shortage'),supplier:v('f-supplier'),ordered:v('f-ordered'),notes:v('f-notes')};
-    if(!rec.week||!rec.shortage){alert('請填寫週期及缺貨商品');return}
+    if(!rec.week||!rec.shortage){showToast('請填寫週期及缺貨商品','err');return}
   } else if(mod==='promo'){
     rec={goods:v('f-goods'),orig:v('f-orig'),sale:v('f-sale'),stock:v('f-stock'),start:v('f-start'),end:v('f-end'),notes:v('f-notes')};
-    if(!rec.goods){alert('請填寫商品名稱');return}
+    if(!rec.goods){showToast('請填寫商品名稱','err');return}
   } else if(mod==='sales'){
     rec={title:v('f-title'),date:v('f-date'),cat:v('f-cat'),body:v('f-body'),result:v('f-result')};
-    if(!rec.title||!rec.body){alert('請填寫標題及內容');return}
+    if(!rec.title||!rec.body){showToast('請填寫標題及內容','err');return}
   } else if(mod==='supplier'){
     rec={_subtype:st};
     if(st==='info'){
       Object.assign(rec,{supname:v('f-supname'),contact:v('f-contact'),phone:v('f-phone'),email:v('f-email'),addr:v('f-addr'),cats:v('f-cats'),notes:v('f-notes')});
-      if(!rec.supname||!rec.phone){alert('請填寫供應商名稱及電話');return}
+      if(!rec.supname||!rec.phone){showToast('請填寫供應商名稱及電話','err');return}
     } else if(st==='stock'){
       Object.assign(rec,{supname:v('f-supname'),goods:v('f-goods'),qty:v('f-qty'),cost:v('f-cost'),price:v('f-price'),date:v('f-date'),status:v('f-status'),notes:v('f-notes')});
-      if(!rec.goods||!rec.qty){alert('請填寫商品名稱及庫存數量');return}
+      if(!rec.goods||!rec.qty){showToast('請填寫商品名稱及庫存數量','err');return}
     } else if(st==='order'){
       Object.assign(rec,{supname:v('f-supname'),date:v('f-date'),items:v('f-items'),eta:v('f-eta'),status:v('f-status'),amount:v('f-amount'),notes:v('f-notes')});
-      if(!rec.supname||!rec.items){alert('請填寫供應商及訂購商品');return}
+      if(!rec.supname||!rec.items){showToast('請填寫供應商及訂購商品','err');return}
     } else if(st==='return'){
       Object.assign(rec,{supname:v('f-supname'),date:v('f-date'),goods:v('f-goods'),qty:v('f-qty'),fault:v('f-fault'),desc:v('f-desc'),status:v('f-status'),notes:v('f-notes')});
-      if(!rec.supname||!rec.goods||!rec.desc){alert('請填寫必填欄位');return}
+      if(!rec.supname||!rec.goods||!rec.desc){showToast('請填寫必填欄位','err');return}
     }
   }
   closeForm();
   if(window._editId){
-    // Edit mode: update existing record
     var editId = window._editId;
     window._editId = null;
-    delete rec.id; // don't overwrite id
+    delete rec.id;
     await fsUpdate(mod, editId, rec);
+    showToast('✓ 記錄已更新', 'ok');
   } else {
-    // New record
     await fsAdd(mod, rec);
+    showToast('✓ 記錄已儲存', 'ok');
   }
 };
 
@@ -954,7 +1102,7 @@ function renderPresale(){
     <div class="m-card">
       <div class="m-card-header">
         <div><div class="m-card-title">${esc(r.name)}</div><div class="m-card-sub">${esc(r.phone)}</div></div>
-        ${editBtn(r.id)}${delBtn(r.id)}
+        <div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div>
       </div>
       <div class="m-card-body">${esc(r.goods)}</div>
       <div class="m-card-meta">
@@ -983,7 +1131,13 @@ function renderRepair(){
         <div><div class="m-card-title">${esc(r.name)}</div><div class="m-card-sub">${esc(r.phone)}</div></div>
         <div style="display:flex;gap:6px;align-items:center">
           <button class="status-btn" onclick="toggleField('repair','${r.id}','status','${next}')"><span class="badge ${s.cls}">${s.label}</span></button>
-          ${editBtn(r.id)}${delBtn(r.id)}
+          <div style="display:flex;gap:4px;align-items:center">
+            <button data-rctid="${r.id}" class="rct-btn" style="background:#f0fdf4;border:1px solid #bbf7d0;cursor:pointer;color:#16a34a;padding:5px 8px;border-radius:6px;display:flex;align-items:center;gap:3px;font-size:11px;font-weight:600" title="打印維修收據">
+              <svg width="13" height="13" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="6 9 6 2 18 2 18 9"/><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"/><rect x="6" y="14" width="12" height="8"/></svg>
+              收據
+            </button>
+            <div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div>
+          </div>
         </div>
       </div>
       <div class="m-card-body"><strong>${esc(r.goods)}</strong></div>
@@ -993,6 +1147,12 @@ function renderRepair(){
       ${delConfirmInline(r.id)}
     </div>`;
   }).join('')}</div>`;
+  // Event delegation for receipt button
+  el.querySelectorAll('.rct-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      printRepairReceipt(this.getAttribute('data-rctid'));
+    });
+  });
 }
 
 function renderReturns(){
@@ -1004,7 +1164,7 @@ function renderReturns(){
     <div class="m-card">
       <div class="m-card-header">
         <div><div class="m-card-title">${esc(r.name)}</div><div class="m-card-sub">${fmtDate(r.date)}${r.phone?' · '+esc(r.phone):''}</div></div>
-        <div style="display:flex;gap:6px;align-items:center"><span class="badge ${r.type==='return'?'b-urgent':'b-info'}">${r.type==='return'?'退貨 Return':'換貨 Exchange'}</span>${editBtn(r.id)}${delBtn(r.id)}</div>
+        <div style="display:flex;gap:6px;align-items:center"><span class="badge ${r.type==='return'?'b-urgent':'b-info'}">${r.type==='return'?'退貨 Return':'換貨 Exchange'}</span><div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div></div>
       </div>
       <div class="m-card-body"><strong>${esc(r.goods)}</strong></div>
       <div style="font-size:13px;color:var(--text2);margin-top:4px">${esc(r.reason)}</div>
@@ -1169,7 +1329,7 @@ function renderComplaint(){
       h.push('<div class="m-card">');
       h.push('<div class="m-card-header">');
       h.push('<div><div class="m-card-title">'+( esc(r.name)||'匿名客人')+'</div><div class="m-card-sub">'+fmtDate(r.date)+(r.phone?' · '+esc(r.phone):'')+'</div></div>');
-      h.push('<div style="display:flex;gap:6px;align-items:center"><span class="badge '+lv.cls+'">'+lv.label+'</span>'+editBtn(r.id)+delBtn(r.id)+'</div>');
+      h.push('<div style="display:flex;gap:6px;align-items:center"><span class="badge '+lv.cls+'">'+lv.label+'</span>'+'<div class="m-card-actions">'+editBtn(r.id)+delBtn(r.id)+'</div>');
       h.push('</div>');
       if(r.goods) h.push('<div style="font-size:12px;color:var(--text3);margin-bottom:6px">'+esc(r.goods)+'</div>');
       h.push('<div class="m-card-body">'+esc(r.complaint)+'</div>');
@@ -1231,7 +1391,7 @@ function renderArrival(){
         </div>
         <div style="display:flex;gap:5px;align-items:center">
           <button class="status-btn" onclick="cycleArrivalStatus('${r.id}')"><span class="badge ${st.cls}">${st.label}</span></button>
-          ${editBtn(r.id)}${delBtn(r.id)}
+          <div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div>
         </div>
       </div>
       <div class="m-card-body" style="font-weight:500">${esc(r.goods)}</div>
@@ -1260,7 +1420,7 @@ function renderRestock(){
     return`<div class="repl-week">
       <div class="repl-header">
         <div><div class="repl-title">${esc(r.week)}</div><div class="repl-date">${fmtDate(r.date)}</div></div>
-        <div style="display:flex;gap:6px;align-items:center"><span class="badge b-urgent">${items.length} 項缺貨</span>${editBtn(r.id)}${delBtn(r.id)}</div>
+        <div style="display:flex;gap:6px;align-items:center"><span class="badge b-urgent">${items.length} 項缺貨</span><div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div></div>
       </div>
       <div style="font-size:10px;font-weight:700;color:var(--text3);text-transform:uppercase;letter-spacing:.05em;margin-bottom:5px">缺貨商品 Out-of-Stock Items</div>
       <div class="repl-items">${items.map(i=>`<span class="repl-tag">${esc(i)}</span>`).join('')}</div>
@@ -1403,7 +1563,7 @@ function renderPromo(){
       h.push('<div class="sale-card">');
       h.push('<div class="sale-header">');
       h.push('<div><div class="sale-product">'+esc(r.goods)+'</div><div class="sale-period">'+fmtDate(r.start)+' → '+(fmtDate(r.end)||'進行中')+'</div></div>');
-      h.push('<div style="display:flex;gap:5px">'+dBadge+editBtn(r.id)+delBtn(r.id)+'</div>');
+      h.push('<div style="display:flex;gap:5px">'+dBadge+'<div class="m-card-actions">'+editBtn(r.id)+delBtn(r.id)+'</div>');
       h.push('</div><div class="sale-meta">');
       if(r.orig) h.push('<span class="badge b-no">原價 $'+r.orig+'</span>');
       if(r.sale) h.push('<span class="badge b-yes">特價 $'+r.sale+'</span>');
@@ -1439,7 +1599,7 @@ function renderSales(){
   el.innerHTML=rows.map(r=>`<div class="sale-card">
     <div class="sale-header">
       <div><div class="sale-product">${esc(r.title)}</div><div class="sale-period">${fmtDate(r.date)}${r.cat?` · ${esc(r.cat)}`:''}</div></div>
-      ${editBtn(r.id)}${delBtn(r.id)}
+      <div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div>
     </div>
     <div class="sale-body">${esc(r.body).replace(/\n/g,'<br>')}</div>
     ${r.result?`<div style="margin-top:10px;padding:10px;background:var(--green-l);border-radius:8px;font-size:13px;color:var(--green)"><strong>成效評估 Outcome：</strong>${esc(r.result)}</div>`:''}
@@ -1467,7 +1627,7 @@ function renderSupplier(){
     else content=rows.map(r=>`<div class="sup-card">
       <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px">
         <div><div class="sup-name">${esc(r.supname)}</div>${r.contact?`<div style="font-size:12px;color:var(--text2);margin-bottom:2px">👤 ${esc(r.contact)}</div>`:''}</div>
-        ${editBtn(r.id)}${delBtn(r.id)}
+        <div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div>
       </div>
       <div class="sup-contact">${r.phone?`📞 ${esc(r.phone)}`:''} ${r.email?`&nbsp;✉️ ${esc(r.email)}`:''}</div>
       ${r.addr?`<div style="font-size:12px;color:var(--text3);margin-bottom:8px">📍 ${esc(r.addr)}</div>`:''}
@@ -1482,7 +1642,7 @@ function renderSupplier(){
       return`<div class="m-card">
         <div class="m-card-header">
           <div><div class="m-card-title">${esc(r.goods)}</div><div class="m-card-sub">${r.supname?esc(r.supname)+' · ':''} ${fmtDate(r.date)}</div></div>
-          <div style="display:flex;gap:5px;align-items:center"><span class="badge ${st.cls}">${st.label}</span>${editBtn(r.id)}${delBtn(r.id)}</div>
+          <div style="display:flex;gap:5px;align-items:center"><span class="badge ${st.cls}">${st.label}</span><div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div></div>
         </div>
         <div class="m-card-meta">
           ${r.qty?`<span class="badge b-info">庫存 ${r.qty} 件</span>`:''}
@@ -1503,7 +1663,7 @@ function renderSupplier(){
           <div><div class="m-card-title">${esc(r.supname)}</div><div class="m-card-sub">訂單日期 Order: ${fmtDate(r.date)}</div></div>
           <div style="display:flex;gap:5px;align-items:center">
             <button class="status-btn" onclick="cycleOrderStatus('${r.id}')"><span class="badge ${st.cls}">${st.label}</span></button>
-            ${editBtn(r.id)}${delBtn(r.id)}
+            <div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div>
           </div>
         </div>
         <div class="repl-items">${items.map(i=>`<span class="repl-tag">${esc(i)}</span>`).join('')}</div>
@@ -1526,7 +1686,7 @@ function renderSupplier(){
           <div><div class="m-card-title">${esc(r.goods)}</div><div class="m-card-sub">${esc(r.supname)} · ${fmtDate(r.date)}</div></div>
           <div style="display:flex;gap:5px;align-items:center">
             <button class="status-btn" onclick="toggleField('supplier','${r.id}','status','${nextR}')"><span class="badge ${st.cls}">${st.label}</span></button>
-            ${editBtn(r.id)}${delBtn(r.id)}
+            <div class="m-card-actions">${editBtn(r.id)}${delBtn(r.id)}</div>
           </div>
         </div>
         <div class="m-card-meta">
@@ -1573,6 +1733,32 @@ window.markSmsSent=async function(id){
 };
 
 // ── Delete ─────────────────────────────────────────────
+
+function printRepairReceipt(id){
+  var r = (db.repair||[]).find(function(x){ return x.id===id; });
+  if(!r){ showToast('找不到記錄','err'); return; }
+  var sl = {pending:'待維修',inprogress:'維修中',done:'已完修',returned:'已取回'};
+  var rno = 'R-'+(r.indate||'').replace(/-/g,'')+'-'+id.slice(-4).toUpperCase();
+  var today = new Date().toLocaleDateString('zh-Hant-CA');
+  function st(elId, val){ var el=document.getElementById(elId); if(el) el.textContent=val||''; }
+  st('rct-no1', rno); st('rct-no2', rno);
+  st('rct-no-bar', '維修收據 '+rno);
+  st('rct-goods', r.goods); st('rct-goods2', r.goods);
+  st('rct-name', r.name);   st('rct-name2', r.name);
+  st('rct-phone', r.phone||'—'); st('rct-phone2', r.phone||'—');
+  st('rct-indate', r.indate||'—'); st('rct-indate2', r.indate||'—');
+  st('rct-outdate', r.outdate||'待定 TBD'); st('rct-outdate2', r.outdate||'待定');
+  st('rct-status', sl[r.status]||r.status||'—'); st('rct-status2', sl[r.status]||r.status||'—');
+  st('rct-fault', r.fault||''); st('rct-fault2', r.fault||'');
+  st('rct-foot1', '大多百電器部 · 列印日期 '+today);
+  st('rct-foot2', '大多百電器部 · 列印日期 '+today);
+  var bdw = document.getElementById('rct-buydate-wrap');
+  if(bdw) bdw.style.display = r.buydate ? '' : 'none';
+  st('rct-buydate', r.buydate||'');
+  document.getElementById('receipt-overlay').classList.add('open');
+  document.getElementById('receipt-overlay').scrollTop = 0;
+}
+
 function delBtn(id){
   return`<button style="background:none;border:none;cursor:pointer;color:var(--text3);padding:5px;border-radius:6px;flex-shrink:0" onclick="startDel('${id}')" onmouseover="this.style.color='var(--red)'" onmouseout="this.style.color='var(--text3)'">
     <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
@@ -1589,10 +1775,14 @@ function delConfirmInline(id){
 }
 window.startDel=id=>{pendingDel=id;renderCurrent()};
 window.cancelDel=()=>{pendingDel=null;renderCurrent()};
-window.confirmDel=async id=>{pendingDel=null;await fsDel(currentModule,id)};
+window.confirmDel=async id=>{pendingDel=null;await fsDel(currentModule,id);showToast('🗑 已刪除','err');};
 
 function emptyState(icon,title,sub){
-  return`<div class="empty"><div class="empty-icon">${icon}</div><p>${title}</p><p style="font-size:12px;margin-top:4px">${sub}</p></div>`;
+  return`<div style="display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;text-align:center">
+    <div style="font-size:52px;margin-bottom:14px;opacity:.5">${icon}</div>
+    <div style="font-size:15px;font-weight:700;color:var(--text2);margin-bottom:6px">${title}</div>
+    <div style="font-size:13px;color:var(--text3)">${sub}</div>
+  </div>`;
 }
 
 // ── Init ───────────────────────────────────────────────
@@ -1856,6 +2046,10 @@ window.dismissBanner = function(){
   window.skuSearch=search;
   console.log(`[SKU DB] 已加載 1107 個貨號 ✓`);
 })();
+
+
+
+
 </script>
 
 
@@ -2003,7 +2197,7 @@ function renderPromo(){
       h.push('<div class="sale-card">');
       h.push('<div class="sale-header">');
       h.push('<div><div class="sale-product">'+esc(r.goods)+'</div><div class="sale-period">'+fmtDate(r.start)+' → '+(fmtDate(r.end)||'進行中')+'</div></div>');
-      h.push('<div style="display:flex;gap:5px">'+dBadge+editBtn(r.id)+delBtn(r.id)+'</div>');
+      h.push('<div style="display:flex;gap:5px">'+dBadge+'<div class="m-card-actions">'+editBtn(r.id)+delBtn(r.id)+'</div>');
       h.push('</div><div class="sale-meta">');
       if(r.orig) h.push('<span class="badge b-no">原價 $'+r.orig+'</span>');
       if(r.sale) h.push('<span class="badge b-yes">特價 $'+r.sale+'</span>');
@@ -2238,7 +2432,147 @@ function _lookupDelegate(e){
   if(t.id==='lk-clear'||t.closest('#lk-clear')){_LK.q='';_LK.page=0;renderLookup();return;}
 }
 
+
+
+
+
+
 </script>
 
+<!-- ═══ Receipt Overlay ═══ -->
+<div id="receipt-overlay">
+  <div class="rct-bar">
+    <span id="rct-no-bar" style="flex:1;font-size:13px;font-weight:600"></span>
+    <button onclick="window.print()" style="padding:7px 18px;background:#fff;color:#c03a08;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🖨️ 打印</button>
+    <button onclick="document.getElementById('receipt-overlay').classList.remove('open')" style="padding:7px 14px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;font-size:13px;cursor:pointer">✕ 關閉</button>
+  </div>
+  <div class="rct-wrap">
+    <!-- Customer copy -->
+    <div id="rct-copy1">
+      <div class="rct-header">
+        <div><div class="rct-co">大多百電器部</div><div class="rct-cosub">The Best Shop · Electronics Dept<br>Crystal Mall, Burnaby BC</div></div>
+        <div class="rct-title"><h2>維修收據<br><span style="font-size:12px;font-weight:400">Repair Receipt</span></h2><div class="rct-no" id="rct-no1"></div><div class="rct-copy-lbl">客戶聯 Customer Copy</div></div>
+      </div>
+      <div class="rct-grid">
+        <div class="rct-full"><div class="rct-lbl">商品 Product</div><div class="rct-val" id="rct-goods" style="font-size:14px"></div></div>
+        <div><div class="rct-lbl">客戶 Customer</div><div class="rct-val" id="rct-name"></div></div>
+        <div><div class="rct-lbl">電話 Phone</div><div class="rct-val" id="rct-phone"></div></div>
+        <div><div class="rct-lbl">送修日期 Drop-off</div><div class="rct-val" id="rct-indate"></div></div>
+        <div><div class="rct-lbl">預計完修 Est.</div><div class="rct-val" id="rct-outdate"></div></div>
+        <div id="rct-buydate-wrap" style="display:none"><div class="rct-lbl">購買日期 Purchase</div><div class="rct-val" id="rct-buydate"></div></div>
+        <div><div class="rct-lbl">狀態 Status</div><div class="rct-val" id="rct-status"></div></div>
+      </div>
+      <div class="rct-lbl" style="margin-bottom:4px">故障描述 Issue Description</div>
+      <div class="rct-fault" id="rct-fault"></div>
+      <div class="rct-sig">
+        <div class="rct-lbl" style="font-weight:700;letter-spacing:1px;color:#888">簽署 SIGNATURES</div>
+        <div class="rct-sig-grid">
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">客戶簽名 Customer</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">收件人 Received By</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">取件簽名 Pickup</div></div>
+        </div>
+      </div>
+      <div class="rct-terms">📌 維修完成後以電話通知，請於 <strong>30日</strong> 內取回商品，逾期本店恕不負責。Items must be collected within 30 days of completion.</div>
+      <div class="rct-foot" id="rct-foot1"></div>
+    </div>
+    <!-- Cut line -->
+    <div class="rct-cut"><span class="rct-cut-lbl">✂ 請從此處裁剪 Cut here</span></div>
+    <!-- Store copy -->
+    <div id="rct-copy2">
+      <div class="rct-header">
+        <div><div class="rct-co" style="font-size:15px">大多百電器部</div><div class="rct-cosub">The Best Shop · Electronics Dept</div></div>
+        <div class="rct-title"><h2 style="font-size:13px">維修收據 Repair Receipt</h2><div class="rct-no" id="rct-no2"></div><div class="rct-copy-lbl" style="color:#c03a08;font-weight:700">存根聯 Store Copy</div></div>
+      </div>
+      <div class="rct-grid">
+        <div><div class="rct-lbl">客戶 Customer</div><div class="rct-val" id="rct-name2"></div></div>
+        <div><div class="rct-lbl">電話 Phone</div><div class="rct-val" id="rct-phone2"></div></div>
+        <div><div class="rct-lbl">商品 Product</div><div class="rct-val" id="rct-goods2"></div></div>
+        <div><div class="rct-lbl">送修 Drop-off</div><div class="rct-val" id="rct-indate2"></div></div>
+        <div><div class="rct-lbl">預計完修 Est.</div><div class="rct-val" id="rct-outdate2"></div></div>
+        <div><div class="rct-lbl">狀態 Status</div><div class="rct-val" id="rct-status2"></div></div>
+      </div>
+      <div class="rct-fault" id="rct-fault2"></div>
+      <div class="rct-sig">
+        <div class="rct-sig-grid">
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">客戶簽名 Customer</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">經手人 Handled By</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">取件簽名 Pickup</div></div>
+        </div>
+      </div>
+      <div class="rct-foot" id="rct-foot2"></div>
+    </div>
+  </div>
+</div>
+</body>
+</html>
+
+
+</script>
+
+
+<!-- ═══ Receipt Overlay ═══ -->
+<div id="receipt-overlay">
+  <div class="rct-bar">
+    <span id="rct-no-bar" style="flex:1;font-size:13px;font-weight:600"></span>
+    <button onclick="window.print()" style="padding:7px 18px;background:#fff;color:#c03a08;border:none;border-radius:6px;font-size:13px;font-weight:700;cursor:pointer">🖨️ 打印</button>
+    <button onclick="document.getElementById('receipt-overlay').classList.remove('open')" style="padding:7px 14px;background:rgba(255,255,255,.2);color:#fff;border:1px solid rgba(255,255,255,.4);border-radius:6px;font-size:13px;cursor:pointer">✕ 關閉</button>
+  </div>
+  <div class="rct-wrap">
+    <!-- Customer copy -->
+    <div id="rct-copy1">
+      <div class="rct-header">
+        <div><div class="rct-co">大多百電器部</div><div class="rct-cosub">The Best Shop · Electronics Dept<br>Crystal Mall, Burnaby BC</div></div>
+        <div class="rct-title"><h2>維修收據<br><span style="font-size:12px;font-weight:400">Repair Receipt</span></h2><div class="rct-no" id="rct-no1"></div><div class="rct-copy-lbl">客戶聯 Customer Copy</div></div>
+      </div>
+      <div class="rct-grid">
+        <div class="rct-full"><div class="rct-lbl">商品 Product</div><div class="rct-val" id="rct-goods" style="font-size:14px"></div></div>
+        <div><div class="rct-lbl">客戶 Customer</div><div class="rct-val" id="rct-name"></div></div>
+        <div><div class="rct-lbl">電話 Phone</div><div class="rct-val" id="rct-phone"></div></div>
+        <div><div class="rct-lbl">送修日期 Drop-off</div><div class="rct-val" id="rct-indate"></div></div>
+        <div><div class="rct-lbl">預計完修 Est.</div><div class="rct-val" id="rct-outdate"></div></div>
+        <div id="rct-buydate-wrap" style="display:none"><div class="rct-lbl">購買日期 Purchase</div><div class="rct-val" id="rct-buydate"></div></div>
+        <div><div class="rct-lbl">狀態 Status</div><div class="rct-val" id="rct-status"></div></div>
+      </div>
+      <div class="rct-lbl" style="margin-bottom:4px">故障描述 Issue Description</div>
+      <div class="rct-fault" id="rct-fault"></div>
+      <div class="rct-sig">
+        <div class="rct-lbl" style="font-weight:700;letter-spacing:1px;color:#888">簽署 SIGNATURES</div>
+        <div class="rct-sig-grid">
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">客戶簽名 Customer</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">收件人 Received By</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">取件簽名 Pickup</div></div>
+        </div>
+      </div>
+      <div class="rct-terms">📌 維修完成後以電話通知，請於 <strong>30日</strong> 內取回商品，逾期本店恕不負責。Items must be collected within 30 days of completion.</div>
+      <div class="rct-foot" id="rct-foot1"></div>
+    </div>
+    <!-- Cut line -->
+    <div class="rct-cut"><span class="rct-cut-lbl">✂ 請從此處裁剪 Cut here</span></div>
+    <!-- Store copy -->
+    <div id="rct-copy2">
+      <div class="rct-header">
+        <div><div class="rct-co" style="font-size:15px">大多百電器部</div><div class="rct-cosub">The Best Shop · Electronics Dept</div></div>
+        <div class="rct-title"><h2 style="font-size:13px">維修收據 Repair Receipt</h2><div class="rct-no" id="rct-no2"></div><div class="rct-copy-lbl" style="color:#c03a08;font-weight:700">存根聯 Store Copy</div></div>
+      </div>
+      <div class="rct-grid">
+        <div><div class="rct-lbl">客戶 Customer</div><div class="rct-val" id="rct-name2"></div></div>
+        <div><div class="rct-lbl">電話 Phone</div><div class="rct-val" id="rct-phone2"></div></div>
+        <div><div class="rct-lbl">商品 Product</div><div class="rct-val" id="rct-goods2"></div></div>
+        <div><div class="rct-lbl">送修 Drop-off</div><div class="rct-val" id="rct-indate2"></div></div>
+        <div><div class="rct-lbl">預計完修 Est.</div><div class="rct-val" id="rct-outdate2"></div></div>
+        <div><div class="rct-lbl">狀態 Status</div><div class="rct-val" id="rct-status2"></div></div>
+      </div>
+      <div class="rct-fault" id="rct-fault2"></div>
+      <div class="rct-sig">
+        <div class="rct-sig-grid">
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">客戶簽名 Customer</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">經手人 Handled By</div></div>
+          <div><div class="rct-sig-line"></div><div class="rct-sig-lbl">取件簽名 Pickup</div></div>
+        </div>
+      </div>
+      <div class="rct-foot" id="rct-foot2"></div>
+    </div>
+  </div>
+</div>
 </body>
 </html>
