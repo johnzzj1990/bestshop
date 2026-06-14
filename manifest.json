@@ -1,0 +1,43 @@
+{
+  "name": "大多百電器部管理系統",
+  "short_name": "電器部管理",
+  "description": "The Best Shop Electronics Department Management System",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#F2EFEA",
+  "theme_color": "#C03A08",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "lang": "zh-Hant",
+  "icons": [
+    {
+      "src": "icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["business", "productivity"],
+  "shortcuts": [
+    {
+      "name": "補貨記錄",
+      "short_name": "補貨",
+      "description": "新增補貨記錄",
+      "url": "/?mod=restock",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "維修技巧",
+      "short_name": "維修",
+      "description": "查閱維修攻略",
+      "url": "/?mod=fixtips",
+      "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
